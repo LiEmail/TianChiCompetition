@@ -6,18 +6,6 @@ print time.time()
 start_time = '2014-11-13'
 test_time = '2014-12-19'
 
-import time
-start_time_array = time.strptime(start_time,"%Y-%m-%d")
-start_time_stamp = int(time.mktime(start_time_array))
-start_time_stamp = int(start_time_stamp/3600)
-print start_time_stamp
-
-import time
-test_time_array = time.strptime(test_time,"%Y-%m-%d")
-test_time_stamp = int(time.mktime(test_time_array))
-test_time_stamp = int(test_time_stamp/3600)
-print test_time_stamp
-
 user_dic = {}  #用户商品词典
 category_dic = {}  #商品统计词典
 with open('test_ali_data.csv') as csvfile:
@@ -29,7 +17,6 @@ with open('test_ali_data.csv') as csvfile:
         b_time = row['time']
         item_category = row['item_category']
         
-        import time
         time_array = time.strptime(b_time,"%Y-%m-%d %H")
         time_stamp = int(time.mktime(time_array))
         b_time = int(time_stamp/3600)
@@ -60,12 +47,12 @@ with open('test_ali_data.csv') as csvfile:
                 one_user[item_id] = {behavior_type:[b_time]}
         else:
             user_dic[user_id] = {item_id:{behavior_type:[b_time]}}
+
 print "read ok"
-import time
 print time.time()
 csvfile.close()
-#数据转化，主要针对商品的行为到购买的转化率，用户对商品行为时间上的排序
 
+#数据转化，主要针对商品的行为到购买的转化率，用户对商品行为时间上的排序
 predict_result = []
 user_result_dic = {}
 for user in user_dic:
@@ -81,6 +68,7 @@ for user in user_dic:
     #    print user,
     #    print "\t",
     #    print good_list
+
 #2014-11-23 20
 import csv
 csvfile = file('t_predict_result.csv','wb')
