@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 import csv
 import time
 from collections import defaultdict
 from sets import Set
 
-#´¦ÀíÊ±¼äµÄ×Ö·û´®Îª Ğ¡Ê±Êı
+#å¤„ç†æ—¶é—´çš„å­—ç¬¦ä¸²ä¸º å°æ—¶æ•°
 def AppendItems(user_id, item_id) :
         s = []
         s.append(user_id)
@@ -13,13 +14,12 @@ def AppendItems(user_id, item_id) :
         return item
 
 def CalF1() :
-        Ref_result = csv.DictReader(open('1.csv'))
-        Predict_result = csv.DictReader(open('2.csv'))
+        Ref_result = csv.DictReader(open('D:\\pythonCode\\reference.csv'))
+        Predict_result = csv.DictReader(open('D:\\pythonCode\\predict_result2.csv'))
         '''
         # interaction size = |A + B| - |A| - |B|
         # then, using dict(a, **b) to speed up
         # can not do it -- as they are list of dictionarys
-
         Ref_size = len(Ref_result)
         Predict_size = len(Predict_result)
         All_size = len(dict(Ref_result, **Predict_result))
