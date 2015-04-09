@@ -1,5 +1,8 @@
 # TianChiCompete
 Our responding code and resources for TianChi competition
+#Update 2015/04/09
+提取整个特征模块的代码架构，想相似代码融合到一个有效函数内，用Generate_feature_All.py 来生成 ref/test/vectorResult。
+同时预先生成中间特征csv文件，方便后期自动化流程的顺利开展
 
 #Update 2015/04/08
  添加特征
