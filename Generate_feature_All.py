@@ -4,23 +4,23 @@ import time
 
 #数据模块
 start_time = '2014-11-13 00'
-cut_time = '2014-12-18 00'
-test_time = '2014-12-19 00'
-dir = 'D:\\TianChi\\'
-#input_user_file = 'tianchi_mobile_recommend_train_user.csv'
-#input_item_file = 'tianchi_mobile_recommend_train_item.csv'
+cut_time = '2014-12-11 23'
+test_time = '2014-12-12 00'
+dir = 'E:\\天池_移动推荐\\'
+#input_user_file = dir + 'tianchi_mobile_recommend_train_user.csv'
+#input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
 input_user_file = dir + 'G2.csv'
 input_item_file = dir + 'G1.csv'
 output_train_file = dir + 'TrainSet.csv'
-output_ref_file = dir + 'PredictVector1212.csv'
+output_vec_file = dir + 'PredictVector1212.csv'
 days_feature = (3, 7, 15)  #前3, 7, 15天的数据
 days_featureName = ("Sales_3","Sales_7","Sales_15")
 behavior = ("","click","store","shopcar","buy") 	#用户行为的title
 user_feature  = ("active_ratio","buy_ratio","buy_day")  #用户特征的title
-train_title  = ['target',days_featureName[0],days_featureName[1],days_featureName[2],user_feature[0],user_feature[1],user_feature[2]] #trainSet的title row
-predict_title  = ['user_id','item_id',days_featureName[0],days_featureName[1],days_featureName[2],user_feature[0],user_feature[1],user_feature[2]] #PredictSet的title row
+train_title  = ['target',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature[0],user_feature[1],user_feature[2]] #trainSet的title row
+predict_title  = ['user_id','item_id',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature[0],user_feature[1],user_feature[2]] #PredictSet的title row
 
-ratio = 10 # 百分比型的特征归一化的参数
+ratio = 1 # 百分比型的特征归一化的参数
 #########################################################################################
 #时间戳转化成天数
 def date2days(date):
@@ -49,7 +49,10 @@ use_item_result = set() # 用户-商品购买情况(二类结果)
 test_user_dic = {}
 
 #生成需要的带特征向量的文件
-# out_put_type取值 0-trainSet; 1-PredictVector 2-refenceSet(带扩展) 
+# out_put_type取值 
+#0-trainSet;
+#1-PredictVector
+#2-refenceSet(有待扩展) 
 def GenerateFeature(out_put_type) :
         #商品信息的统计
 	with open(input_item_file) as item_csv_file:
@@ -84,7 +87,6 @@ def GenerateFeature(out_put_type) :
 					one_good = good_dic[item_id]
 					# 更新行为
 					one_good[behavior_type] = one_good[behavior_type] + 1
-					print one_good[behavior_type] 
 					# 更新火爆程度
 					if b_time - cut_time_stamp <= days_feature[0] :
 						one_good[days_featureName[0]] = one_good[days_featureName[0]] + 1
@@ -142,7 +144,7 @@ def GenerateFeature(out_put_type) :
 	    output_file = output_train_file
 	elif out_put_type == 1 :
 	    Title = predict_title
-	    output_file = output_ref_file
+	    output_file = output_vec_file
 	
 	writer = csv.writer(file(output_file,'wb'))
 	writer.writerow(Title)

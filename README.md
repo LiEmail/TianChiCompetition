@@ -1,5 +1,13 @@
 # TianChiCompete
 Our responding code and resources for TianChi competition
+
+
+
+#Update 2015/04/10
+  负样本影响问题
+      测试产生 '候选集'的过程中，发现虽然只用子集，但是一早上起来，数据量还是把硬盘给爆了，经测试，代码应该没有产生大问题。估计是负样本
+太多，过多的想预测没有发生过预测行为的（U,I）对。尝试取消这部分内容
+
 #Update 2015/04/09
 提取整个特征模块的代码架构，想相似代码融合到一个有效函数内，用Generate_feature_All.py 来生成 ref/test/vectorResult。
 同时预先生成中间特征csv文件，方便后期自动化流程的顺利开展
@@ -18,7 +26,7 @@ Our responding code and resources for TianChi competition
  代码自动化程度
      通过实际动手，发现现在的两部分代码自动化拟合程度还不是很高。当前是为了方便，没有追加写特征的csv文件
 	 后期跟进数据需要，可能需要先写出中间的特征文件，然后对于每天新增数据再进行追加写。
-  
+ 
 #Update 2015/04/06
 1. 基本框架的构建：
  特征工程部分 
@@ -31,7 +39,6 @@ Our responding code and resources for TianChi competition
      根据网上的建议，当前主要选用pandas & statemodel，暂不清楚是否方便修改相关算法的API。先试着跑通流程
 	 pandas/statmodels 为相关库(依赖库较多，暂未上传)
 	 docs-py2.7(python官方文档pdf)
-
 2. 所需要处理的工作
  特征提取上:
    增加 商品相关特征： 销量（前3/7/15天） 、分类中商品的排名（可能需要折合成数值型）
@@ -39,6 +46,7 @@ Our responding code and resources for TianChi competition
 		用户-分类特征：用户对该分类进行访问/购买/加购物车的次数
  数据分布的问题：
    当然，在进一步利用单模型对特征进行多重训练之前，先要解决好数据的一些问题，保证不会使"知识"在测试集上无法有效应用
+
 #Update 2015/04/05
 初步准备利用LR,把 *特征工程的构建* 和 *算法模型的选取* 分开来，也方便将整体流程顺一下。
 然后有机会在进一步深入学习和探究
