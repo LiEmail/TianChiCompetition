@@ -1,4 +1,4 @@
-# TianChiCompete
+# TianChiCompetition
 Our responding code and resources for TianChi competition
 
 
