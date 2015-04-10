@@ -7,18 +7,18 @@ start_time = '2014-11-13 00'
 cut_time = '2014-12-18 00'
 test_time = '2014-12-19 00'
 dir = 'E:\\Github\\TianChiCompete\\'
-input_user_file = dir + 'tianchi_mobile_recommend_train_user.csv'
-input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
-#input_user_file = dir + 'G2.csv'
-#input_item_file = dir + 'G1.csv'
+#input_user_file = dir + 'tianchi_mobile_recommend_train_user.csv'
+#input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
+input_user_file = dir + 'G2.csv'
+input_item_file = dir + 'G1.csv'
 output_train_file = dir + 'TrainSet.csv'
-output_vec_file = dir + 'PredictVector.csv'
+output_vec_file = dir + 'PredictVector1212.csv'
 days_feature = (3, 7, 15)  #前3, 7, 15天的数据
 days_featureName = ("Sales_3","Sales_7","Sales_15")
 behavior = ("","click","store","shopcar","buy") 	#用户行为的title
-user_feature  = ("active_ratio","buy_ratio","buy_day")  #用户特征的title
-train_title  = ['target',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature[0],user_feature[1]] #trainSet的title row
-predict_title  = ['user_id','item_id',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature[0],user_feature[1]] #PredictSet的title row
+user_feature_name  = ("active_ratio","buy_ratio","buy_day")  #用户特征的title
+train_title  = ['target',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature_name[0],user_feature_name[1]] #trainSet的title row
+predict_title  = ['user_id','item_id',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature_name[0],user_feature_name[1]] #PredictSet的title row
 
 ratio = 10 # 百分比型的特征归一化的参数
 #########################################################################################
@@ -184,18 +184,22 @@ def GenerateFeature(out_put_type) :
 				good_f2	= good_feature[behavior[3]]
 				good_f3	= good_feature[days_featureName[0]]
 				good_f4 = good_feature[days_featureName[1]]
-				user_f1 = len(user_feature[AppendUseItemString(behavior[4], 'days')]) * 1.0 * ratio / (cut_time_stamp - start_time_stamp)  
+				user_f1 = len(user_feature[AppendUseItemString(behavior[4], 'days')]) * 1.0 * ratio / (cut_time_stamp - start_time_stamp)
 				user_f2 = user_feature[behavior[4]] * 1.0 * ratio /( user_feature[behavior[1]] + user_feature[behavior[2]] + user_feature[behavior[3]] + user_feature[behavior[4]] )
 				
-				#未考虑正负样本抽样，正负样本比例先按照 1：8 来取
+				#判断 一些刷单用户，取消噪点
+				if user_f1 < 0.00001 and user_f2 < 0.01 : 
+					continue
+
+				#未考虑正负样本抽样，正负样本比例先按照 1：7 来取
 				if out_put_type == 0 :
 					if target == 0 and count == 7 :
 						writer.writerow([target, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
 						count = 0
-					elif target == 0 :
+					elif target == 0 and count < 7 : 
 						count = count + 1
-					elif target == 1: 
-					        writer.writerow([target, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
+					elif target == 1 : 
+						writer.writerow([target, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
 				elif out_put_type == 1 :
 					writer.writerow([user, good, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
 	csvfile.close()
@@ -203,5 +207,5 @@ def GenerateFeature(out_put_type) :
 	return
 	
 if __name__ == '__main__' :
-	#GenerateFeature(1)
+	#GenerateFeature(0)
 	GenerateFeature(0)
