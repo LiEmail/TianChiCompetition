@@ -12,7 +12,7 @@ input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
 #input_user_file = dir + 'G2.csv'
 #input_item_file = dir + 'G1.csv'
 output_train_file = dir + 'TrainSet.csv'
-output_vec_file = dir + 'PredictVector1212.csv'
+output_vec_file = dir + 'PredictVector.csv'
 days_feature = (3, 7, 15)  #前3, 7, 15天的数据
 days_featureName = ("Sales_3","Sales_7","Sales_15")
 behavior = ("","click","store","shopcar","buy") 	#用户行为的title
@@ -187,13 +187,15 @@ def GenerateFeature(out_put_type) :
 				user_f1 = len(user_feature[AppendUseItemString(behavior[4], 'days')]) * 1.0 * ratio / (cut_time_stamp - start_time_stamp)  
 				user_f2 = user_feature[behavior[4]] * 1.0 * ratio /( user_feature[behavior[1]] + user_feature[behavior[2]] + user_feature[behavior[3]] + user_feature[behavior[4]] )
 				
-				#未考虑正负样本抽样，正负样本比例先按照 1：5 来取
+				#未考虑正负样本抽样，正负样本比例先按照 1：8 来取
 				if out_put_type == 0 :
-					if(count == 5) :
+					if target == 0 and count == 7 :
 						writer.writerow([target, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
 						count = 0
-					else : 
+					elif target == 0 :
 						count = count + 1
+					elif target == 1: 
+					        writer.writerow([target, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
 				elif out_put_type == 1 :
 					writer.writerow([user, good, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
 	csvfile.close()
@@ -201,5 +203,5 @@ def GenerateFeature(out_put_type) :
 	return
 	
 if __name__ == '__main__' :
-	#GenerateFeature(0)
+	#GenerateFeature(1)
 	GenerateFeature(0)
