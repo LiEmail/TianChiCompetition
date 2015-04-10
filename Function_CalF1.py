@@ -4,6 +4,9 @@ import time
 from collections import defaultdict
 from sets import Set
 
+dir = 'D:\\pythonCode\\'
+ref_file = dir + 'reference.csv'
+vector_file = dir + 'PredictResult.csv'
 #处理时间的字符串为 小时数
 def AppendItems(user_id, item_id) :
         s = []
@@ -14,8 +17,8 @@ def AppendItems(user_id, item_id) :
         return item
 
 def CalF1() :
-        Ref_result = csv.DictReader(open('D:\\pythonCode\\reference.csv'))
-        Predict_result = csv.DictReader(open('D:\\pythonCode\\predict_result2.csv'))
+        Ref_result = csv.DictReader(open(ref_file))
+        Predict_result = csv.DictReader(open(vector_file))
         '''
         # interaction size = |A + B| - |A| - |B|
         # then, using dict(a, **b) to speed up
