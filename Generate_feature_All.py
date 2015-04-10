@@ -4,47 +4,52 @@ import time
 
 #数据模块
 start_time = '2014-11-13 00'
-cut_time = '2014-12-11 23'
-test_time = '2014-12-12 00'
-dir = 'E:\\天池_移动推荐\\'
-#input_user_file = dir + 'tianchi_mobile_recommend_train_user.csv'
-#input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
-input_user_file = dir + 'G2.csv'
-input_item_file = dir + 'G1.csv'
+cut_time = '2014-12-18 00'
+test_time = '2014-12-19 00'
+dir = 'E:\\Github\\TianChiCompete\\'
+input_user_file = dir + 'tianchi_mobile_recommend_train_user.csv'
+input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
+#input_user_file = dir + 'G2.csv'
+#input_item_file = dir + 'G1.csv'
 output_train_file = dir + 'TrainSet.csv'
 output_vec_file = dir + 'PredictVector1212.csv'
 days_feature = (3, 7, 15)  #前3, 7, 15天的数据
 days_featureName = ("Sales_3","Sales_7","Sales_15")
 behavior = ("","click","store","shopcar","buy") 	#用户行为的title
 user_feature  = ("active_ratio","buy_ratio","buy_day")  #用户特征的title
-train_title  = ['target',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature[0],user_feature[1],user_feature[2]] #trainSet的title row
-predict_title  = ['user_id','item_id',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature[0],user_feature[1],user_feature[2]] #PredictSet的title row
+train_title  = ['target',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature[0],user_feature[1]] #trainSet的title row
+predict_title  = ['user_id','item_id',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature[0],user_feature[1]] #PredictSet的title row
 
-ratio = 1 # 百分比型的特征归一化的参数
+ratio = 10 # 百分比型的特征归一化的参数
 #########################################################################################
 #时间戳转化成天数
 def date2days(date):
     date_array = time.strptime(date,'%Y-%m-%d %H')
-    days = int((time.mktime(date_array))/(3600&24))
+    days = int((time.mktime(date_array))/(3600*24))
     return days
 
 #形成 userid_itemid串，用于匹配target
 def AppendUseItemString(user_id, item_id) :
-        s = []
-        s.append(user_id)
-        s.append('-')
-        s.append(item_id)
-        item = ''.join(s)
-        return item
+    s = []
+    s.append(user_id)
+    s.append('-')
+    s.append(item_id)
+    item = ''.join(s)
+    return item
 
-
+def IsThatDay(target, source) :
+    print 'target' + str(target)
+    print 'cut-time' + str(source)
+    if target == source :
+        return True
+    return False
+	
 start_time_stamp = date2days(start_time)
 cut_time_stamp   = date2days(cut_time)
 test_time_stamp  = date2days(test_time)
-total_day = float(cut_time_stamp - start_time_stamp)
 user_dic = {}  #用户商品词典
 good_dic = {}  #商品统计词典  
-user_item_dic = {}  #用户-品牌词典
+user_good = {}  #用户-品牌词典
 use_item_result = set() # 用户-商品购买情况(二类结果)
 test_user_dic = {}
 
@@ -78,10 +83,10 @@ def GenerateFeature(out_put_type) :
 			b_time = date2days(row['time'])
 			item_category = row['item_category']
 			
-			#如果out_put_type  == 1（PredictVectors）,所有的user_item对都要记录
-                        #如果out_put_type  == 0（trainSet）,要判断分割点			
-			if out_put_type  == 1 or \
-			   (out_put_type == 0 and b_time <= cut_time_stamp ):
+			#如果out_put_type  == 1（PredictVectors）,test_time之前的都要加入
+            #如果out_put_type  == 0（trainSet）,cut_time之前的都要加入		
+			if (out_put_type  == 1 and b_time < test_time_stamp) or \
+			   (out_put_type == 0 and b_time < cut_time_stamp ):
 				#更新商品统计词典（只统计出现过的商品/未出现商品暂时过滤掉）
 				if good_dic.has_key(item_id) == True :
 					one_good = good_dic[item_id]
@@ -100,7 +105,7 @@ def GenerateFeature(out_put_type) :
 				
 				#更新用户统计词典
 				if user_dic.has_key(user_id) == False :  #如果不存在键值，先创建一个键值
-					user_dic[row['user_id']] = { behavior[1]: 0,\
+					user_dic[user_id] = { behavior[1]: 0,\
 										  behavior[2]: 0,\
 										  behavior[3]: 0,\
 										  behavior[4]: 0,\
@@ -111,11 +116,21 @@ def GenerateFeature(out_put_type) :
 										}
 				one_user = user_dic[user_id]
 				one_user[behavior_type] = one_user[behavior_type] + 1  	#更新行为
-				one_user[AppendUseItemString(behavior_type,'days')].add(b_time)	#更新活跃度		
-				if behavior_type == "buy" :
-					use_item_result.add(AppendUseItemString(user_id, item_id))
-											  
+				one_user[AppendUseItemString(behavior_type,'days')].add(b_time)	#更新活跃度
+					  
 				#更新用户-品牌特征 （等待添加）
+				
+				#加入分割点时间的购买结果，来对
+				use_good_id = AppendUseItemString(user_id, item_id)
+				if user_good.has_key(use_good_id) == False :   #如果不存在键值，先创建一个键值
+					user_good[use_good_id] = {behavior[1]: 0,\
+												  behavior[2]: 0,\
+												  behavior[3]: 0,\
+												  behavior[4]: 0
+												 }
+				user_good_info = user_good[use_good_id]
+				one_user[behavior_type] = one_user[behavior_type] + 1  	#更新行为
+				
 				'''
 				if one_user_one_good.has_key(behavior_type) == True:
 					one_user_one_good_one_behavior = one_user_one_good[behavior_type]
@@ -132,6 +147,11 @@ def GenerateFeature(out_put_type) :
 				else:
 					test_user_dic[user_id] = {item_id:1}
 				'''
+			#如果out_put_type  == 0 （trainSet）,利用cut_time当天的结果标记之前的TrainSet的tag
+			elif (out_put_type == 0 and b_time == cut_time_stamp ) : 
+				if behavior_type == "buy" and IsThatDay(b_time, cut_time_stamp) : 
+					use_item_result.add(AppendUseItemString(user_id, item_id))
+						
 	csvfile.close()
 	print "read ok"
 
@@ -149,30 +169,37 @@ def GenerateFeature(out_put_type) :
 	writer = csv.writer(file(output_file,'wb'))
 	writer.writerow(Title)
 
+	count = 0;
 	for user in user_dic.keys() : 	#后期考虑剔除 爬虫类账户，暂时做全部用户的		
 		for good in good_dic.keys() :
-			target = 0
-			if AppendUseItemString(user, good) in use_item_result :
-				target = 1
-			
-			good_feature = good_dic[good]
-			user_feature = user_dic[user]
-			
-			good_f1	= good_feature[behavior[4]]
-			good_f2	= good_feature[behavior[3]]
-			good_f3	= good_feature[days_featureName[0]]
-			good_f4 = good_feature[days_featureName[1]]
-			user_f1 = len(user_feature[AppendUseItemString(behavior[4], 'days')]) * 1.0 * ratio / (cut_time_stamp - start_time_stamp)  
-			user_f2 = user_feature[behavior[4]] * 1.0 * ratio /( user_feature[behavior[1]] + user_feature[behavior[2]] + user_feature[behavior[3]] + user_feature[behavior[4]] )
-			
-			if out_put_type == 0 : 
-				writer.writerow([target, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
-			elif out_put_type == 1 :
-				writer.writerow([user, good, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
+			if(user_good.has_key(AppendUseItemString(user, good))) :
+				target = 0
+				if AppendUseItemString(user, good) in use_item_result :
+					target = 1
+				
+				good_feature = good_dic[good]
+				user_feature = user_dic[user]
+				
+				good_f1	= good_feature[behavior[4]]
+				good_f2	= good_feature[behavior[3]]
+				good_f3	= good_feature[days_featureName[0]]
+				good_f4 = good_feature[days_featureName[1]]
+				user_f1 = len(user_feature[AppendUseItemString(behavior[4], 'days')]) * 1.0 * ratio / (cut_time_stamp - start_time_stamp)  
+				user_f2 = user_feature[behavior[4]] * 1.0 * ratio /( user_feature[behavior[1]] + user_feature[behavior[2]] + user_feature[behavior[3]] + user_feature[behavior[4]] )
+				
+				#未考虑正负样本抽样，正负样本比例先按照 1：5 来取
+				if out_put_type == 0 :
+					if(count == 5) :
+						writer.writerow([target, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
+						count = 0
+					else : 
+						count = count + 1
+				elif out_put_type == 1 :
+					writer.writerow([user, good, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
 	csvfile.close()
 	print 'generate over'
 	return
 	
 if __name__ == '__main__' :
 	#GenerateFeature(0)
-	GenerateFeature(1)
+	GenerateFeature(0)
