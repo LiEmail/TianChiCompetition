@@ -38,8 +38,6 @@ def AppendUseItemString(user_id, item_id) :
     return item
 
 def IsThatDay(target, source) :
-    print 'target' + str(target)
-    print 'cut-time' + str(source)
     if target == source :
         return True
     return False
