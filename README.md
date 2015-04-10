@@ -33,8 +33,8 @@ Our responding code and resources for TianChi competition
      后期跟进数据需要，可能需要先写出中间的特征文件，然后对于每天新增数据再进行追加写。<br />
  
 #Update 2015/04/06
-1. 基本框架的构建
-    特征工程部分
+1. 基本框架的构建<br/> 
+    特征工程部分<br/> 
         Generate_raw_train.py (从原始数据中按照分割点，得到分割点前的数据)<br />
         Generate_feature_All.py (从raw_train数据中提取特征，并构建基于特征向量的训练集合)<br />
     算法框架部分<br/> 
