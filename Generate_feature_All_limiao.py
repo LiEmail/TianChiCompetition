@@ -7,10 +7,10 @@ start_time = '2014-11-13 00'
 cut_time = '2014-12-18 00'
 test_time = '2014-12-19 00'
 dir = 'E:\\Github\\TianChiCompete\\'
-#input_user_file = dir + 'tianchi_mobile_recommend_train_user.csv'
-#input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
-input_user_file = dir + 'G2.csv'
-input_item_file = dir + 'G1.csv'
+input_user_file = dir + 'row_record_no1212.csv'
+input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
+#input_user_file = dir + 'G2.csv'
+#input_item_file = dir + 'G1.csv'
 output_train_file = dir + 'TrainSet.csv'
 output_vec_file = dir + 'PredictVector.csv'
 days_feature = (3, 7, 15)  #前3, 7, 15天的数据
@@ -168,10 +168,11 @@ def GenerateFeature(out_put_type) :
                 '''
             #加入分割点时间的tag
             #如果out_put_type  == 0 （trainSet）,利用cut_time当天的结果标记之前的TrainSet的tag
-            elif out_put_type == 0 and  IsThatDay(b_time, cut_time_stamp):
+            elif out_put_type == 0 and IsThatDay(b_time, cut_time_stamp):
                     result = False
                     if behavior_type == 'buy' :
-                        result = True
+                        print 'buy'
+                    result = True
                     use_item_result[AppendUseItemString(user_id, item_id)] = { 'tag' : result}
     csvfile.close()
     print "read ok"
@@ -190,46 +191,45 @@ def GenerateFeature(out_put_type) :
     writer.writerow(Title)
 
     count = 0;
-    user_keys = user_dic.keys()
-    good_keys = good_dic.keys()
-    
-    for user in user_dic :
-        for good in good_dic :
-            user_good_key = AppendUseItemString(user, good)
-            if use_item_result.has_key(user_good_key) :
-                if(user_good.has_key(user_good_key) and clearNagetiveSample(user_good[user_good_key])) :
-                    continue;
 
-                good_feature = good_dic[good]
-                user_feature = user_dic[user]
-                    
-                good_f1 = good_feature[behavior[4]]
-                good_f2 = good_feature[behavior[3]]
-                good_f3 = good_feature[days_featureName[0]]
-                good_f4 = good_feature[days_featureName[1]]
-                user_f1 = len(user_feature[AppendUseItemString(behavior[4], 'days')]) * 1.0 * ratio / (cut_time_stamp - start_time_stamp)
-                user_f2 = user_feature[behavior[4]] * 1.0 * ratio / ( user_feature[behavior[1]] + user_feature[behavior[2]] + user_feature[behavior[3]] + user_feature[behavior[4]] )
-                    
-                #判断 一些刷单用户，取消噪点
-                if user_f1 < 0.00001 and user_f2 < 0.01 : 
-                    continue
-                
-                #未考虑正负样本抽样，正负样本比例先按照 1：3 来取
-                if out_put_type == 0 :
-                    if use_item_result[user_good_key]['tag'] == True :
-                        target = 1
-                    else :
-                        target = 0
-                        
-                    if target == 0 and count == 3 :
-                        writer.writerow([target, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
-                        count = 0
-                    elif target == 0 and count < 3 : 
-                        count = count + 1
-                    elif target == 1 : 
-                        writer.writerow([target, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
-                elif out_put_type == 1 :
-                    writer.writerow([user, good, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
+    if out_put_type == 0 :
+        user_good_list = use_item_result
+    elif out_put_type == 1 :
+        user_good_list = user_good
+
+    for user_good_key in user_good_list :
+        array = user_good_key.split('-')
+        user = array[0]
+        good = array[1]
+        if (user_dic.has_key(user) is True) and (good_dic.has_key(good) is True) :
+            # 没发生过行为的 && 超过一些 负样本边界条件的 都剔除掉
+            if( (not user_good.has_key(user_good_key)) or clearNagetiveSample(user_good[user_good_key])) :
+                continue;
+
+            good_feature = good_dic[good]
+            user_feature = user_dic[user]					
+            good_f1 = good_feature[behavior[4]]
+            good_f2 = good_feature[behavior[3]]
+            good_f3 = good_feature[days_featureName[0]]
+            good_f4 = good_feature[days_featureName[1]]
+            user_f1 = len(user_feature[AppendUseItemString(behavior[4], 'days')]) * 1.0 * ratio / (cut_time_stamp - start_time_stamp)
+            user_f2 = user_feature[behavior[4]] * 1.0 * ratio / ( user_feature[behavior[1]] + user_feature[behavior[2]] + user_feature[behavior[3]] + user_feature[behavior[4]] )
+							
+            #判断 一些刷单用户，取消噪点
+            if user_f1 < 0.00001 and user_f2 < 0.01 :
+                continue
+					
+            #未考虑正负样本抽样，正负样本比例先按照 1：3 来取
+            if out_put_type == 0 :
+                if (use_item_result[user_good_key]['tag'] is False) and (count == 3) :
+                    writer.writerow([0, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
+                    count = 0
+                elif (use_item_result[user_good_key]['tag'] is False) and (count < 3) :
+                    count = count + 1
+                elif use_item_result[user_good_key]['tag'] is True :
+                    writer.writerow([1, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
+            elif out_put_type == 1 :
+                writer.writerow([user, good, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
     csvfile.close()
     print 'generate over'
     return
