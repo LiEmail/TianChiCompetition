@@ -24,9 +24,15 @@ ratio = 10 # 百分比型的特征归一化的参数
 #########################################################################################
 #时间戳转化成天数
 def date2days(date):
-    date_array = time.strptime(date,'%Y-%m-%d %H')
+    test_time_array = time.strptime(date,'%Y-%m-%d %H')
     days = int((time.mktime(date_array))/(3600*24))
-    return days
+	#0点的时候需要转换，不然会出错误
+	days = int(test_time_stamp/(3600*24))
+    if test_time_array[3] == 0 :
+		return days + 1
+	else :
+		return days
+	
 
 #形成 userid_itemid串，用于匹配target
 def AppendUseItemString(user_id, item_id) :
