@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import csv
 import pandas as pd
-from collections import defaultdict
 import statsmodels.api as sm
 POINT = 0.0
 dir = 'E://天池_移动推荐//'
@@ -23,5 +22,5 @@ writer = csv.writer(file('E://predict_result.csv','wb'))
 writer.writerow(['user_id','iterm_id'])
 for term in combos.values:
     uid, bid, prediction = str(int(term[0])), str(int(term[1])), term[predict_row]
-if prediction > 0.5:      #可以通过调节POINT的大小来控制最后结果的个数，当然你也可以取分数topN
+if prediction > 0.3:      #可以通过调节POINT的大小来控制最后结果的个数，当然你也可以取分数topN
     writer.writerow([uid,bid]) #结果输出到新的csv当中
