@@ -17,10 +17,10 @@ days_feature = (3, 7, 15)  #前3, 7, 15天的数据
 days_featureName = ("Sales_3","Sales_7","Sales_15")
 behavior = ("","click","store","shopcar","buy")     #用户行为的title
 user_feature_name  = ("active_ratio","buy_ratio","buy_day")  #用户特征的title
-train_title  = ['target',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature_name[0],user_feature_name[1]] #trainSet的title row
-predict_title  = ['user_id','item_id',behavior[4],behavior[3],days_featureName[0],days_featureName[1],user_feature_name[0],user_feature_name[1]] #PredictSet的title row
+train_title  = ['target',behavior[4],behavior[3],days_featureName[0],user_feature_name[0],user_feature_name[1]] #trainSet的title row
+predict_title  = ['user_id','item_id',behavior[4],behavior[3],days_featureName[0],user_feature_name[0],user_feature_name[1]] #PredictSet的title row
 
-ratio = 10 # 百分比型的特征归一化的参数
+ratio = 30 # 百分比型的特征归一化的参数
 #########################################################################################
 #时间戳转化成天数
 def date2days(date):
@@ -211,7 +211,8 @@ def GenerateFeature(out_put_type) :
             good_f1 = good_feature[behavior[4]]
             good_f2 = good_feature[behavior[3]]
             good_f3 = good_feature[days_featureName[0]]
-            good_f4 = good_feature[days_featureName[1]]
+            good_f3 = good_f3 * 1.0 * 10 / 500 #归一化处理
+            #good_f4 = good_feature[days_featureName[1]]  #前7天结果和前3天一样，统计上可能是集合划分的问题，暂时先不用
             user_f1 = len(user_feature[AppendUseItemString(behavior[4], 'days')]) * 1.0 * ratio / (cut_time_stamp - start_time_stamp)
             user_f2 = user_feature[behavior[4]] * 1.0 * ratio / ( user_feature[behavior[1]] + user_feature[behavior[2]] + user_feature[behavior[3]] + user_feature[behavior[4]] )
 							
@@ -227,9 +228,9 @@ def GenerateFeature(out_put_type) :
                 elif (use_item_result[user_good_key]['tag'] is False) and (count < 3) :
                     count = count + 1
                 elif use_item_result[user_good_key]['tag'] is True :
-                    writer.writerow([1, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
+                    writer.writerow([1, good_f1, good_f2, good_f3, user_f1, user_f2])
             elif out_put_type == 1 :
-                writer.writerow([user, good, good_f1, good_f2, good_f3, good_f4, user_f1, user_f2])
+                writer.writerow([user, good, good_f1, good_f2, good_f3, user_f1, user_f2])
     csvfile.close()
     print 'generate over'
     return
