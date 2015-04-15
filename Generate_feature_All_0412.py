@@ -165,7 +165,7 @@ def GenerateOneGoodFeature(one_good,start_date_order,cut_date_order):
     good_f1 = 0  #总销量
     good_f2 = 0  #总加入购物车量
     good_f3 = 0  #最近3天销量
-    good_f4 = 0  #醉经7天销量
+    good_f4 = 0  #最近7天销量
     for date_temp in range(start_date_order,cut_date_order):
         good_f1 = one_good[behavior[4]][date_temp] + good_f1
         good_f2 = one_good[behavior[3]][date_temp] + good_f2

@@ -1,2 +1,2 @@
-target,buy,shopcar,Sales_3,Sales_7,active_ratio,buy_ratio
-1,11,1,20,20,0.5714285714285714,6.666666666666667
+target,3days_click,3days_store,3days_shopcar,3days_buy,7days_click,7days_store,7days_shopcar,7days_buy
+1,0,0,0,1,0,0,0,1
