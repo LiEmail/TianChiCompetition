@@ -1,2 +1,10 @@
-target,3days_click,3days_store,3days_shopcar,3days_buy,7days_click,7days_store,7days_shopcar,7days_buy
-1,0,0,0,1,0,0,0,1
+target,user_item_op1_1d,user_item_op2_1d,user_item_op3_1d,user_item_op4_1d,user_item_op1_2d,user_item_op2_2d,user_item_op3_2d,user_item_op4_2d,user_item_op1_3d,user_item_op2_3d,user_item_op3_3d,user_item_op4_3d,user_item_op1_7d,user_item_op2_7d,user_item_op3_7d,user_item_op4_7d
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2
+1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1
+0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0

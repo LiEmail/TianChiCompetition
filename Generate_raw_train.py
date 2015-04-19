@@ -12,6 +12,7 @@ input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
 #input_user_file = dir + 'G2.csv'
 #input_item_file = dir + 'G1.csv'
 raw_train_file = dir + 'row_record.csv'
+raw_buy_file = dir + 'buy_record.csv'
 good_dic = {} # 商品词典
 
 #处理时间的字符串为 小时
@@ -34,6 +35,24 @@ def GenerateTrainTest() :
 		for row in item_reader :
 			good_dic[row['item_id']] = {'category': row['item_category'],'geohash': row['item_geohash']}
 	
+	#提取有商品子集交互
+	writer = csv.writer(file(raw_train_file,'wb'))
+	writer.writerow(['user_id','item_id','behaviro_type','user_geohash','item_geohash','item_category','time'])
+	reader = csv.reader(open(input_user_file))
+	for user_id, item_id, behaviro_type, user_geohash, item_category, time in reader:
+	if good_dic.has_key(item_id) and (TransferTime(time) != TransferTime(remove_time)) :  #如果要提取某一天的，就加上时间判断
+			writer.writerow([user_id, item_id, behaviro_type, user_geohash, good_dic[item_id]['geohash'], item_category, time]) 
+
+	return 1;
+
+#提取某一天的购买记录（以dic的方式返回）
+def GetOneDayBuyData(ref_time) :
+	#商品子集的统计
+	with open(input_item_file) as item_csv_file :
+		item_reader = csv.DictReader(item_csv_file)
+		for row in item_reader :
+			good_dic[row['item_id']] = {'category': row['item_category'],'geohash': row['item_geohash']}
+
 	#提取有商品子集交互
 	writer = csv.writer(file(raw_train_file,'wb'))
 	writer.writerow(['user_id','item_id','behaviro_type','user_geohash','item_geohash','item_category','time'])
