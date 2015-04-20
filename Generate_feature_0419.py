@@ -7,22 +7,25 @@ import time
 #                   ('2014-11-24 00','2014-12-10 00'),('2014-11-25 00','2014-12-11 00'),('2014-11-26 00','2014-12-12 00'),\
 #                   ('2014-11-27 00','2014-12-13 00'),('2014-11-28 00','2014-12-14 00'),('2014-11-29 00','2014-12-15 00'),\
 #                   ('2014-11-30 00','2014-12-16 00'),('2014-12-01 00','2014-12-17 00')]
+# （起始时间，分割时间的区别）
+# 1. 可以尝试将test的时间间隔也设置的小一点
+# 2. train本身的时间间隔也可以设置的小一点
 date_list_test  = [('2014-12-02 00','2014-12-18 00')]
 date_list_train = [('2014-11-18 00','2014-12-15 00'),('2014-11-18 00','2014-12-16 00')]
 
 start_time = '2014-11-18 00'
 last_time = '2014-12-19 00'
-cut_time = '2014-12-12 00'
-test_time = '2014-12-19 00'
-dir = 'E:\\Github\\TianChiCompete\\'
-#input_user_file = dir + 'tianchi_mobile_recommend_train_user.csv'
+#dir = 'E:\\Github\\TianChiCompete\\'
+dir = 'E:\\天池_移动推荐\\'
+input_user_file = dir + 'tianchi_mobile_recommend_train_user.csv'
 #input_user_file = dir + 'tainchi_train_user.csv'
-#input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
+input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
 test_result = dir + 'test_result.csv'
-input_user_file = dir + 'G2.csv'
-input_item_file = dir + 'G1.csv'
+#input_user_file = dir + 'G2.csv'
+#input_item_file = dir + 'G1.csv'
 output_train_file = dir + 'TrainSet.csv'
 output_vec_file = dir + 'PredictVector.csv'
+
 days_feature = (3, 7, 15)  #前3, 7, 15天的数据
 days_featureName = ("Sales_3","Sales_7","Sales_15")
 behavior = ("","click","store","shopcar","buy")     #用户行为的title
@@ -36,8 +39,15 @@ predict_title  = ['user_id','item_id','user_item_op1_1d','user_item_op2_1d','use
                   'user_item_op1_2d','user_item_op2_2d','user_item_op3_2d','user_item_op4_2d', \
                   'user_item_op1_3d','user_item_op2_3d','user_item_op3_3d','user_item_op4_3d', \
                   'user_item_op1_7d','user_item_op2_7d','user_item_op3_7d','user_item_op4_7d'] #PredictSet的title row
-
 ratio = 10 # 百分比型的特征归一化的参数
+
+user_dic = {}  #用户商品词典
+good_subspace_dic = {} #用户商品子集
+good_dic = {}  #商品统计词典  
+category_dic = {} #同category的词典 --adding on 04/19
+user_good = {}  #用户-品牌词典
+test_user_dic = {}
+
 #########################################################################################
 #时间戳转化成天数
 def date2days(date):
@@ -48,6 +58,10 @@ def date2days(date):
         return days_i + 1
     else :
         return days_i
+start_time_stamp = date2days(start_time)
+last_time_stamp = date2days(last_time)
+total_days = int(last_time_stamp - start_time_stamp)
+use_item_result = [{}]*total_days # 记录每一天用户-商品购买情况(二类结果)
 
 #形成 userid_itemid串，用于匹配target
 def AppendUseItemString(user_id, item_id) :
@@ -79,20 +93,6 @@ def clearNagetiveSample():
         elif op4 == 0 and op3 == 0 and op < 4:
             user_good.pop(key)           
     return
-
-start_time_stamp = date2days(start_time)
-last_time_stamp = date2days(last_time)
-total_days = int(last_time_stamp - start_time_stamp)
-print total_days
-cut_time_stamp   = date2days(cut_time)
-test_time_stamp  = date2days(test_time)
-user_dic = {}  #用户商品词典
-good_subspace_dic = {} #用户商品子集
-good_dic = {}  #商品统计词典  
-category_dic = {} #同category的词典 --adding on 04/19
-user_good = {}  #用户-品牌词典
-use_item_result = [{}]*total_days # 记录每一天用户-商品购买情况(二类结果)
-test_user_dic = {}
 
 #获得同category的个体
 def GetSameCategory() :
@@ -319,10 +319,10 @@ def GenerateFeature(out_put_type) :
                 #没有发生过任何行为的 品牌-商品信息暂不考虑
                 if good_user_feature == False:
                     continue
-                
-				feature = []
+
+                feature = []
                 if out_put_type == 0 :
-					#result由cut_date及其后两天决定
+					#只关心3天内发生过行为的result
                     result = JudgeResult(user_good_key,use_item_result,cut_date+1,cut_date + 2) 
                     # if result == True:
                     #    result = JudgeResult2(user_good[user_good_key],cut_date)
@@ -340,9 +340,9 @@ def GenerateFeature(out_put_type) :
     return
 
 def GetSoldItem() :
-	ReadItemFile()
+    ReadItemFile()
     ReadUserFile()
-	date_list_sold  = ['2014-11-18 00','2014-11-19 00','2014-11-20 00','2014-11-21 00','2014-11-22 00','2014-11-23 00','2014-11-24 00','2014-11-25 00',\
+    date_list_sold  = ['2014-11-18 00','2014-11-19 00','2014-11-20 00','2014-11-21 00','2014-11-22 00','2014-11-23 00','2014-11-24 00','2014-11-25 00',\
                      '2014-11-26 00','2014-11-27 00','2014-11-28 00','2014-11-29 00','2014-11-30 00','2014-12-01 00','2014-12-02 00','2014-12-03 00',\
                      '2014-12-04 00','2014-12-05 00','2014-12-06 00','2014-12-07 00','2014-12-08 00','2014-12-09 00','2014-12-10 00','2014-12-11 00',\
                      '2014-12-12 00','2014-12-13 00','2014-12-14 00','2014-12-15 00','2014-12-16 00','2014-12-17 00','2014-12-18 00']
