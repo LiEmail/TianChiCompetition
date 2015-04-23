@@ -6,7 +6,8 @@ import re
 cut_time   = '2014-12-05 23'
 remove_time = '2014-12-12 23'
 
-dir = 'D://TianChi//'
+#dir = 'D://TianChi//'
+dir = 'E://天池_移动推荐//'
 input_user_file = dir + 'tianchi_mobile_recommend_train_user.csv'
 input_item_file = dir + 'tianchi_mobile_recommend_train_item.csv'
 #input_user_file = dir + 'G2.csv'
@@ -37,10 +38,10 @@ def GenerateTrainTest() :
 	
 	#提取有商品子集交互
 	writer = csv.writer(file(raw_train_file,'wb'))
-	writer.writerow(['user_id','item_id','behaviro_type','user_geohash','item_geohash','item_category','time'])
+	writer.writerow(['user_id','item_id','behavior_type','user_geohash','item_geohash','item_category','time'])
 	reader = csv.reader(open(input_user_file))
-	for user_id, item_id, behaviro_type, user_geohash, item_category, time in reader:
-	if good_dic.has_key(item_id) and (TransferTime(time) != TransferTime(remove_time)) :  #如果要提取某一天的，就加上时间判断
+	for user_id, item_id, behaviro_type, user_geohash, item_category, time in reader : 
+		if good_dic.has_key(item_id) and TransferTime(time) != TransferTime(remove_time) :  #如果要提取某一天的，就加上时间判断 
 			writer.writerow([user_id, item_id, behaviro_type, user_geohash, good_dic[item_id]['geohash'], item_category, time]) 
 
 	return 1;
@@ -57,8 +58,8 @@ def GetOneDayBuyData(ref_time) :
 	writer = csv.writer(file(raw_train_file,'wb'))
 	writer.writerow(['user_id','item_id','behaviro_type','user_geohash','item_geohash','item_category','time'])
 	reader = csv.reader(open(input_user_file))
-	for user_id, item_id, behaviro_type, user_geohash, item_category, time in reader:
-	if good_dic.has_key(item_id) and (TransferTime(time) != TransferTime(remove_time)) :  #如果要提取某一天的，就加上时间判断
+	for user_id, item_id, behaviro_type, user_geohash, item_category, time in reader: 
+		if good_dic.has_key(item_id) and (TransferTime(time) != TransferTime(remove_time)) :  #如果要提取某一天的，就加上时间判断
 			writer.writerow([user_id, item_id, behaviro_type, user_geohash, good_dic[item_id]['geohash'], item_category, time]) 
 
 	return 1;
